@@ -1,3 +1,5 @@
+from HttpCommand import HttpCommand
+
 class Go2Web:
     def __init__(self, commands_list) -> None:
         self.commands_list = commands_list
@@ -8,13 +10,14 @@ class Go2Web:
     def handleCommand(self, command):
         for command_checker in self.commands_list:
             if command_checker.check(command):
-                return command_checker.response(command)
+                return command_checker.response()
 
     def run(self):
         while True:
             command = self.getCommand()
-            self.handleCommand(command)
+            response = self.handleCommand(command)
+            print(response)
 
 if __name__ == "__main__":
-    g = Go2Web([])
+    g = Go2Web([HttpCommand('-u')])
     print(g.run())

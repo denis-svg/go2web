@@ -1,11 +1,13 @@
 from HTTPRequest import make_https_request
 from bs4 import BeautifulSoup
 from urllib.parse import quote_plus
+from datetime import datetime, timedelta
 
 class SearchCommand:
     def __init__(self, option) -> None:
         self.option = option
         self.terms = ""
+        self.cache = {}
 
     def check(self, command):
         command = command.split()
@@ -23,6 +25,10 @@ class SearchCommand:
         return True
     
     def response(self):
+        if self.terms in self.cache:
+            cached_entry, cached_time = self.cache[self.terms]
+            if datetime.now() - cached_time < timedelta(seconds=60 * 60):
+                return cached_entry
         try:
             page = 1
             results = 0
@@ -36,8 +42,10 @@ class SearchCommand:
                     results += 1
                     response += str(results) + "\n" + result['title'] + "\n" + result['link'] + "\n" + result['description'] + "\n" + "----------" + "\n"
                     if results == 10:
+                        self.cache[self.terms] = (response, datetime.now())
                         return response
                 page += 1
+            self.cache[self.terms] = (response, datetime.now())
             return response
         except Exception as e:
             return str(e)

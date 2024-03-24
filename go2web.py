@@ -1,4 +1,5 @@
 from HttpCommand import HttpCommand
+from SearchCommand import SearchCommand
 
 class Go2Web:
     def __init__(self, commands_list) -> None:
@@ -19,5 +20,6 @@ class Go2Web:
             print(response)
 
 if __name__ == "__main__":
-    g = Go2Web([HttpCommand('-u')])
+    g = Go2Web([HttpCommand('-u'),
+                SearchCommand("-s")])
     print(g.run())

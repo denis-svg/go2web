@@ -1,3 +1,6 @@
+from HTTPRequest import make_https_request
+from bs4 import BeautifulSoup
+
 class HttpCommand:
     def __init__(self, option) -> None:
         self.option = option
@@ -15,4 +18,10 @@ class HttpCommand:
         return True
     
     def response(self):
-        return self.url
+        try:
+            html_page = make_https_request(self.url)
+            soup = BeautifulSoup(html_page, 'html.parser')
+            title = soup.title.string
+            return title.strip()
+        except Exception as e:
+            return str(e)

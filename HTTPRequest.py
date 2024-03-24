@@ -9,7 +9,7 @@ def parseUrl(url):
     path = parsed_url.path if parsed_url.path else "/"
     return host, port, path
 
-# Function to make HTTPS request and retrieve HTML page
+# Function to make HTTPS request and retrieve HTML or JSON content
 def make_https_request(url):
     # Parse the URL
     host, port, _ = parseUrl(url)
@@ -35,10 +35,31 @@ def make_https_request(url):
             if not chunk:
                 break
             response += chunk
-        # Decode and return the HTML page
-        html_page = response.split(b"\r\n\r\n", 1)[1]
-        return html_page.decode('ISO-8859-1')
         
+        # Extract response headers
+        headers, _, body = response.partition(b"\r\n\r\n")
+        content_type = None
+        for header in headers.split(b"\r\n"):
+            if header.startswith(b"Content-Type:"):
+                content_type = header.decode().split(";")[0]
+                break
+
+        # Handle response based on content type
+        if content_type == "Content-Type: application/json":
+            # Decode JSON content and return
+            import json
+            return json.loads(body.decode())
+        elif content_type == "Content-Type: text/html":
+            # Decode HTML content and return
+            return body.decode('ISO-8859-1')
+        else:
+            # Unsupported content type
+            raise ValueError(f"Unsupported content type: {content_type}")
+
     finally:
         # Close the socket
         sock.close()
+
+if __name__ == "__main__":
+    # Example usage: Make a request and handle both JSON and HTML content
+    json_response = make_https_request("https://jsonplaceholder.typicode.com/posts/1")

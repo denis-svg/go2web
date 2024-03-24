@@ -30,5 +30,7 @@ class HttpCommand:
             title = soup.title.string
             self.cache[self.url] = (title.strip(), datetime.now())
             return title.strip()
+        except KeyError as e:
+            return str(html_page)
         except Exception as e:
             return str(e)
